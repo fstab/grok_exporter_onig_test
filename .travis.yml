@@ -6,12 +6,11 @@ os:
 
 env:
   matrix:
-    - MODE=STATIC
-    - MODE=DYNAMIC
-  matrix:
     - ONIG_VERSION=5.9.6
     - ONIG_VERSION=6.0.0
     - ONIG_VERSION=DEFAULT
+    - MODE=STATIC
+    - MODE=DYNAMIC
 
 before_install:
   - |
