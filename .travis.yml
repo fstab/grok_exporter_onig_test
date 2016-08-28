@@ -1,0 +1,55 @@
+language: go
+
+os:
+  - linux
+  - osx
+
+env:
+  matrix:
+    - ONIG_VERSION=5.9.6
+    - ONIG_VERSION=6.0.0
+    - ONIG_VERSION=DEFAULT
+
+before_install:
+  - |
+    echo "Building $TRAVIS_OS_NAME with Oniguruma $ONIG_VERSION" ;
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]] ; then
+        brew update ;
+        case "$ONIG_VERSION" in
+        "DEFAULT")
+            brew install oniguruma ;
+            ;;
+        *)
+            echo "skipping Oniguruma version $ONIG_VERSION" ;
+            ;;
+        esac ;
+    fi ;
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] ; then
+        sudo apt-get -qq update ;
+        case "$ONIG_VERSION" in
+        "DEFAULT")
+            sudo apt-get install libonig-dev ;
+            ;;
+        *)
+            echo "skipping Oniguruma version $ONIG_VERSION" ;
+            ;;
+        esac ;
+    fi ;
+
+install:
+  - echo "Skipping install phase, because github.com/fstab/grok_exporter has all its dependencies in the vendor/ folder."
+
+script:
+  - go version
+  - go test -v $(go list ./... | grep -v /vendor/)
+  - go install .
+  - ./integration-test.sh
+
+after_success:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/modocache/gover ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then go list ./... | grep -v /vendor/ | while read package ; do go test -covermode count -coverprofile=$(basename $package).coverprofile $package ; done ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gover && goveralls -coverprofile=gover.coverprofile -service=travis-ci ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then rm *.coverprofile ; fi
+
+go:
+  - tip
