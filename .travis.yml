@@ -6,37 +6,31 @@ os:
 
 env:
   matrix:
-    - ONIG_VERSION=5.9.6
-    - ONIG_VERSION=6.0.0
+    - ONIG_VERSION=5.9.6 MODE=STATIC
+    - ONIG_VERSION=5.9.6 MODE=DYNAMIC
+    - ONIG_VERSION=6.0.0 MODE=STATIC
+    - ONIG_VERSION=6.0.0 MODE=DYNAMIC
     - ONIG_VERSION=DEFAULT
-    - MODE=STATIC
-    - MODE=DYNAMIC
 
 before_install:
   - |
-    echo "Building $TRAVIS_OS_NAME with Oniguruma $ONIG_VERSION" ;
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]] ; then
-        brew update ;
-        case "$ONIG_VERSION" in
-        "DEFAULT")
+    case "$ONIG_VERSION" in
+    "DEFAULT")
+        if [[ "$TRAVIS_OS_NAME" == "osx" ]] ; then
+            brew update ;
             brew install oniguruma ;
-            ;;
-        *)
-            echo "skipping Oniguruma version $ONIG_VERSION" ;
-            ;;
-        esac ;
-    fi ;
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]] ; then
-        sudo apt-get -qq update ;
-        case "$ONIG_VERSION" in
-        "DEFAULT")
+        elif [[ "$TRAVIS_OS_NAME" == "linux" ]] ; then
+            sudo apt-get -qq update ;
             sudo apt-get install libonig-dev ;
-            ;;
-        *)
-            echo "skipping Oniguruma version $ONIG_VERSION" ;
-            ;;
-        esac ;
-    fi ;
+        fi
+        ;;
+    *)
+        curl -sLO https://github.com/kkos/oniguruma/releases/download/v${ONIG_VERSION}/onig-${ONIG_VERSION}.tar.gz ;
+        tar xfz onig-${ONIG_VERSION}.tar.gz ;
+        cd onig-${ONIG_VERSION} ;
+        ./configure && make && make install ;
+        ;;
+    esac ;
 
 install:
   - echo "Skipping install phase, because github.com/fstab/grok_exporter has all its dependencies in the vendor/ folder."
