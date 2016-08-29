@@ -7,7 +7,7 @@ int oniguruma_helper_initialize(OnigEncoding encodings[], int n) {
     #if ONIGURUMA_VERSION_MAJOR == 6
         return onig_initialize(encodings, n);
     #else
-        return 0
+        return 0;
     #endif
 }
 
