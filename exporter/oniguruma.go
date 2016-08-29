@@ -1,8 +1,8 @@
 package exporter
 
 /*
-#cgo CFLAGS: -I/Users/fabian/go/src/github.com/fstab/onig_test/onig-6.0.0/include
-#cgo LDFLAGS: -L/Users/fabian/go/src/github.com/fstab/onig_test/onig-6.0.0/lib -lonig
+#cgo CFLAGS: -I/usr/local/include
+#cgo LDFLAGS: -L/usr/local/lib -lonig
 #include <stdlib.h>
 #include <string.h>
 #include <oniguruma.h>
