@@ -40,19 +40,23 @@ before_install:
     ls /usr/local/lib ;
 
 install:
+  - echo "nothing to do in install phase" ;
+
+script:
   - |
-    ls /usr/local/lib ;
-    cd .. && mv grok_exporter_onig_test grok_exporter && cd grok_exporter ;
     case "$MODE" in
     "STATIC")
+        CGO_LDFLAGS=/usr/local/lib/libonig.a go test -v $(go list ./... | grep -v /vendor/) ;
         CGO_LDFLAGS=/usr/local/lib/libonig.a go install . ;
         if ldd $GOPATH/bin/grok_exporter | grep libonig ;
         then
             echo "ERROR: Expected statically linked binary." >&2 ;
             exit -1 ;
         fi ;
+        ./integration-test.sh
         ;;
     *)
+        go test -v $(go list ./... | grep -v /vendor/) ;
         go install . ;
         if ! ldd $GOPATH/bin/grok_exporter | grep libonig ;
         then
@@ -62,13 +66,9 @@ install:
         ;;
     esac ;
 
-script:
-  - go test -v $(go list ./... | grep -v /vendor/)
-  - ./integration-test.sh
-
 after_success:
   - |
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]] ;
+    if [[ "$TRAVIS_OS_NAME" == "linux" -a "$ONIG_VERSION" == "DEFAULT" ]] ;
     then
         go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/modocache/gover ;
         go list ./... | grep -v /vendor/ | while read package ; do
