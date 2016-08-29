@@ -5,15 +5,15 @@ go:
 
 os:
   - linux
-#  - osx
+  - osx
 
 env:
   matrix:
     - ONIG_VERSION=5.9.6 MODE=STATIC
-#    - ONIG_VERSION=5.9.6 MODE=DYNAMIC
-#    - ONIG_VERSION=6.0.0 MODE=STATIC
-#    - ONIG_VERSION=6.0.0 MODE=DYNAMIC
-#    - ONIG_VERSION=DEFAULT
+    - ONIG_VERSION=5.9.6 MODE=DYNAMIC
+    - ONIG_VERSION=6.0.0 MODE=STATIC
+    - ONIG_VERSION=6.0.0 MODE=DYNAMIC
+    - ONIG_VERSION=DEFAULT
 
 before_install:
   - |
