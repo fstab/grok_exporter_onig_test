@@ -44,6 +44,7 @@ install:
 
 script:
   - |
+    cd .. && mv grok_exporter_onig_test grok_exporter && cd grok_exporter ;
     case "$MODE" in
     "STATIC")
         CGO_LDFLAGS=/usr/local/lib/libonig.a go test -v $(go list ./... | grep -v /vendor/) ;
