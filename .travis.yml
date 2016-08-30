@@ -45,16 +45,16 @@ install:
 script:
   - |
     cd .. && mv grok_exporter_onig_test grok_exporter && cd grok_exporter ;
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]] ;
+    then
+        LDD_COMMAND="otool -L" ;
+    else
+        LDD_COMMAND="ldd" ;
+    fi
     case "$MODE" in
     "STATIC")
         CGO_LDFLAGS=/usr/local/lib/libonig.a go test -v $(go list ./... | grep -v /vendor/) ;
         CGO_LDFLAGS=/usr/local/lib/libonig.a go install . ;
-        if [[ "$TRAVIS_OS_NAME" == "osx" ]] ;
-        then
-            LDD_COMMAND="otool -L" ;
-        else
-            LDD_COMMAND="ldd" ;
-        fi
         if $LDD_COMMAND $GOPATH/bin/grok_exporter | grep libonig ;
         then
             echo "ERROR: Expected statically linked binary." >&2 ;
@@ -65,7 +65,7 @@ script:
     *)
         go test -v $(go list ./... | grep -v /vendor/) ;
         go install . ;
-        if ! ldd $GOPATH/bin/grok_exporter | grep libonig ;
+        if ! $LDD_COMMAND $GOPATH/bin/grok_exporter | grep libonig ;
         then
             echo "ERROR: Expected dynamically linked binary." >&2 ;
             exit -1 ;
